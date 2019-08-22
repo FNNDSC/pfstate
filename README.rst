@@ -35,6 +35,23 @@ Consult the source code for full detail. However, as a simple overview, the reco
 
 .. code-block:: python
 
+    from    pfmisc.C_snode      import C_snode
+    from    pfmisc._colors      import Colors
+    from    pfstate             import S
+    from    argparse            import RawTextHelpFormatter
+    from    argparse            import ArgumentParser
+
+
+    parser  = ArgumentParser(description = str_desc, formatter_class = RawTextHelpFormatter)
+
+    parser.add_argument(
+        '--msg',
+        action  = 'store',
+        dest    = 'msg',
+        default = '',
+        help    = 'Message payload for internalctl control.'
+    )
+
     class D(S):
         """
         A derived class with problem-specific state
