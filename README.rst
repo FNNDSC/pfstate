@@ -41,8 +41,13 @@ Consult the source code for full detail. However, as a simple overview, the reco
     from    argparse            import RawTextHelpFormatter
     from    argparse            import ArgumentParser
 
+    str_desc        = "some program description"
+    str_version     = "1.0.0.0"
 
-    parser  = ArgumentParser(description = str_desc, formatter_class = RawTextHelpFormatter)
+    parser          = ArgumentParser(
+                        description = str_desc, 
+                        formatter_class = RawTextHelpFormatter
+                    )
 
     parser.add_argument(
         '--msg',
