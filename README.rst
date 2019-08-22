@@ -22,12 +22,11 @@ This repository provides ``pfstate`` -- a library / module that maintains state 
 pfstate
 =======
 
-Most simply, ``pfstate`` is a module that keeps state in a class definition (as opposed to a class instance). It was primarily created in the context of custom HTTPserver classes. Creating an HTTPserver in python involved subclassing from the base HTTPserver module, and in the constructor providing a handler object.
+Most simply, ``pfstate`` is a module that keeps state in a class definition (as opposed to a class instance). It was primarily created in the context of custom ``ThreadedHTTPServer`` classes. Creating a ``ThreadedHTTPServer`` in python involves instantiating the ``ThreadedHTTPServer``, and in the constructor providing a derived ``BaseHTTPRequestHandler`` object. The design pattern has some structural shortcomings -- most notably that the difficulty in setting internal ``BaseHTTPRequestHandler`` data from the level of the ``ThreadedHTTPServer``. One mechanism to overcome this is to share a common single ``pfstate`` object across the scope of both the server and the handler.
 
-Each call to the HTTPserver re-initializes the handler object, so any state information in that 
-object instance is lost. 
+Moreover, each call to the ``ThreadedHTTPServer`` re-initializes the handler object derived from ``BaseHTTPRequestHandler``, so any state information in that object instance is lost across calls.
 
-By using the ``pfstate`` module, however, in the handler object, state information can be preserved across calls to the HTTPserver by keep state in the object and not an instance of the object. 
+By using the ``pfstate`` module, however, in the handler object, state information can be preserved across calls to the ``ThreadedHTTPServer`` by keeping state in the object and not an instance of the object. 
 
 In some ways, this can be thought of a cleaner way to avoid using a global variable.
 
