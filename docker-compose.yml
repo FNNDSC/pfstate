@@ -1,0 +1,22 @@
+# https://docs.docker.com/compose/yml/
+# Each service defined in docker-compose.yml must specify exactly one of
+# image or build. Other keys are optional, and are analogous to their
+# docker run command-line counterparts.
+#
+# As with docker run, options specified in the Dockerfile (e.g., CMD,
+# EXPOSE, VOLUME, ENV) are respected by default - you don't need to
+# specify them again in docker-compose.yml.
+#
+
+version: '3'
+
+services:
+  pfstate_dev:
+    image:   ${CREPO}/pfstate
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - ./pfstate/pfstate.py:/usr/local/lib/python3.6/dist-packages/pfstate/pfstate.py
+    labels:
+      name: "pfstate"
+      role: "PF state, a module for maintaining state in python http server builds."
+    command: ["--verbosity", "1", "--debugToDir", "/tmp"]
