@@ -1,5 +1,5 @@
 ###################
-pfstate  v1.0.0.0
+pfstate  v1.0.1.0
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -31,6 +31,8 @@ By using the ``pfstate`` module, however, in the handler object, state informati
 In some ways, this can be thought of a cleaner way to avoid using a global variable.
 
 Consult the source code for full detail. However, as a simple overview, the recommended method of using this module is to define a subclass containing the state-specific information in a dictionary, and then to initialize the class.
+
+Note, it is vitally important that this derived class check the initialization of the base object data so as to not re-initialize an already stateful object and hence lose any additional state information.
 
 .. code-block:: python
 
@@ -65,8 +67,8 @@ Consult the source code for full detail. However, as a simple overview, the reco
             """
             Constructor
             """
+            S.__init__(self, *args, **kwargs)
             if not S.b_init:
-                S.__init__(self, *args, **kwargs)
                 d_specific  = \
                     {
                         'specificState': {
@@ -87,6 +89,10 @@ Consult the source code for full detail. However, as a simple overview, the reco
                 S.d_state.update(d_specific)
                 S.T.initFromDict(S.d_state)
                 S.b_init    = True
+                if len(S.T.cat('/this/debugToDir')):
+                    if not os.path.exists(S.T.cat('/this/debugToDir')):
+                        os.makedirs(S.T.cat('/this/debugToDir'))
+
             self.dp.qprint(
                 Colors.YELLOW + "\n\t\tInternal data tree:", 
                 level   = 1,

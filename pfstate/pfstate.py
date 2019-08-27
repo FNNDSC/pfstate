@@ -63,18 +63,23 @@ class S:
     class directly, 'S'. For example, to change values in the state
     tree structure, simply call 'S.T.<method>'.
 
+    NOTE: derived classes MUST handle the checks on prior initializaion
+    so as to not re-initialize this class once it has been created.
+
     """
     d_state =  {}
     T       = C_stree()
     b_init  = False
 
-    def state_init(self, d_args, str_desc, str_version):
+    def state_init( self, d_args, 
+                    str_name    = "", 
+                    str_desc    = "", 
+                    str_version = ""
+                    ):
         """
         Populate the internal <self.state> dictionary based on the 
         passed 'args'
         """
-
-        # pudb.set_trace()
 
         # Initializing from file state will always flush and
         # recreate, destroying any previous state.
@@ -88,7 +93,7 @@ class S:
             S.d_state = \
             {
                 'this': {
-                    'name':                 'pfstate',
+                    'name':                 str_name,
                     'version':              str_version,
                     'desc':                 str_desc,
                     'verbosity':            int(d_args['verbosity']),
@@ -98,10 +103,6 @@ class S:
                     'args':                 d_args
                 }
             }
-
-        if len(S.T.cat('/this/debugToDir')):
-            if not os.path.exists(S.T.cat('/this/debugToDir')):
-                os.makedirs(S.T.cat('/this/debugToDir'))
 
     def __init__(self, *args, **kwargs):
         """
@@ -120,9 +121,11 @@ class S:
         for k,v in kwargs.items():
             if k == 'args':     d_args          = v
             if k == 'desc':     str_desc        = v
+            if k == 'name':     str_name        = v
             if k == 'version':  str_version     = v
 
-        self.state_init(d_args, str_desc, str_version)
+        if not S.b_init:
+            self.state_init(d_args, str_name, str_desc, str_version)
 
         self.dp                 = pfmisc.debug(    
                                             verbosity   = S.T.cat('/this/verbosity'),
