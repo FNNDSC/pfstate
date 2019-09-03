@@ -1,5 +1,5 @@
 ###################
-pfstate  v1.0.1.0
+pfstate  v1.0.1.2
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
