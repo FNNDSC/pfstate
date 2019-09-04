@@ -284,7 +284,7 @@ class S:
                 b_status, d_ret = self.internalvar_setProcess(d_meta)
 
             if 'valueReplace' in d_meta.keys():
-                b_status, d_ret = self.internalvar_setProcess(d_meta)
+                b_status, d_ret = self.internalvar_valueReplaceProcess(d_meta)
 
         return {'d_ret':    d_ret,
                 'status':   b_status}
