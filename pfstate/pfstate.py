@@ -51,15 +51,15 @@ class S:
     """
     A somewhat cryptically named class that keeps system state.
 
-    Calls to the HTTPServer re-initialize the StoreHandler class -- this 
+    Calls to the HTTPServer re-initialize the StoreHandler class -- this
     effectively means any per-instance state information is lost across
-    calls. 
+    calls.
 
-    Barring the use of a module-wide global variable, this class keeps 
-    state information as a class (not instance)-variable -- which 
+    Barring the use of a module-wide global variable, this class keeps
+    state information as a class (not instance)-variable -- which
     effectively is analogous to a namespaced global variable.
 
-    State-related class variables can thus be accessed by calling the 
+    State-related class variables can thus be accessed by calling the
     class directly, 'S'. For example, to change values in the state
     tree structure, simply call 'S.T.<method>'.
 
@@ -71,18 +71,26 @@ class S:
     T       = C_stree()
     b_init  = False
 
-    def state_init( self, d_args, 
-                    str_name    = "", 
-                    str_desc    = "", 
+    def state_init( self, d_args,
+                    str_name    = "",
+                    str_desc    = "",
                     str_version = ""
                     ):
         """
-        Populate the internal <self.state> dictionary based on the 
+        Populate the internal <self.state> dictionary based on the
         passed 'args'
         """
 
         # Initializing from file state will always flush and
         # recreate, destroying any previous state.
+        if 'str_configFileLoad' not in d_args.keys():
+            d_args['str_configFileLoad']    = ''
+        if 'str_configFileSave' not in d_args.keys():
+            d_args['str_configFileSave']    = ''
+        if 'str_debugToDir'     not in d_args.keys():
+            d_args['str_debugToDir']        = '/tmp'
+        if 'verbosity'          not in d_args.keys():
+            d_args['verbosity']             = '0'
         if len(d_args['str_configFileLoad']):
             if Path(d_args['str_configFileLoad']).is_file():
                 # Read configuration detail from JSON formatted file
@@ -106,8 +114,8 @@ class S:
 
     def __init__(self, *args, **kwargs):
         """
-        The logic of this constructor reflects a bit from legacy design 
-        patterns of `pfcon` -- specifically the passing of flags in a 
+        The logic of this constructor reflects a bit from legacy design
+        patterns of `pfcon` -- specifically the passing of flags in a
         single structure, and the <self.state> dictionary to try and
         organize the space of <self> variables a bit logically.
         """
@@ -127,7 +135,7 @@ class S:
         if not S.b_init:
             self.state_init(d_args, str_name, str_desc, str_version)
 
-        self.dp                 = pfmisc.debug(    
+        self.dp                 = pfmisc.debug(
                                             verbosity   = S.T.cat('/this/verbosity'),
                                             within      = S.T.cat('/this/name')
                                             )
@@ -179,7 +187,7 @@ class S:
         d_ret       = {}
         b_status    = False
         b_tree      = False
-                    
+
         try:
             d_set       = json.loads(d_meta['set'])
         except:
@@ -194,8 +202,8 @@ class S:
                 S.T.mkdir(str_var)
             for topDir in D.lstr_lsnode():
                 D.copy(
-                        startPath       = '/'+topDir, 
-                        destination     = S.T, 
+                        startPath       = '/'+topDir,
+                        destination     = S.T,
                         pathDiskRoot    = str_var
                     )
             d_ret           = d_set
@@ -250,8 +258,8 @@ class S:
             if str_target.strip('%') in os.environ:
                 str_value   = os.environ[str_target.strip('%')]
         d_ret = S.T.treeExplore(
-                f       = fileContentsReplaceAtPath, 
-                target  = str_target, 
+                f       = fileContentsReplaceAtPath,
+                target  = str_target,
                 value   = str_value
                 )
         b_status        = d_ret['status']
@@ -274,7 +282,7 @@ class S:
 
         for k,v in kwargs.items():
             if k == 'd_meta':   d_meta  = v
-            
+
         if d_meta:
             if 'get' in d_meta.keys():
                 b_status, d_ret = self.internalvar_getProcess(d_meta)
@@ -325,5 +333,5 @@ class S:
             d_meta  = d_request['meta']
             d_ret   = self.internalctl_varprocess(d_meta = d_meta)
         return d_ret
-            
+
 
