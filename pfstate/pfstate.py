@@ -67,9 +67,32 @@ class S:
     so as to not re-initialize this class once it has been created.
 
     """
-    d_state =  {}
+    d_state = {}
     T       = C_stree()
     b_init  = False
+
+    def state_create(self, d_state, *args, **kwargs):
+        """
+        Create the internal object with specific state
+        dictionary information.
+        """
+        S.__init__(self, *args, **kwargs)
+        if not S.b_init:
+            S.d_state.update(d_state)
+            S.T.initFromDict(S.d_state)
+            S.b_init    = True
+            if len(S.T.cat('/this/debugToDir')):
+                if not os.path.exists(S.T.cat('/this/debugToDir')):
+                    os.makedirs(S.T.cat('/this/debugToDir'))
+
+        self.dp.qprint(
+            Colors.YELLOW + "\n\t\tInternal data tree:",
+            level   = 1,
+            syslog  = False)
+        self.dp.qprint(
+            C_snode.str_blockIndent(str(S.T), 3, 8),
+            level   = 1,
+            syslog  = False)
 
     def state_init( self, d_args,
                     str_name    = "",
@@ -136,9 +159,9 @@ class S:
             self.state_init(d_args, str_name, str_desc, str_version)
 
         self.dp                 = pfmisc.debug(
-                                            verbosity   = S.T.cat('/this/verbosity'),
-                                            within      = S.T.cat('/this/name')
-                                            )
+                                    verbosity   = S.T.cat('/this/verbosity'),
+                                    within      = S.T.cat('/this/name')
+                                  )
         self.pp                 = pprint.PrettyPrinter(indent=4)
 
     def leaf_process(self, **kwargs):
