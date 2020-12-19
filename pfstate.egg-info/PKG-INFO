@@ -1,13 +1,13 @@
 Metadata-Version: 1.0
 Name: pfstate
-Version: 2.0.2
+Version: 2.0.4
 Summary: class-defintion stateful module
 Home-page: https://github.com/FNNDSC/pfstate
 Author: Rudolph Pienaar
 Author-email: rudolph.pienaar@gmail.com
 License: MIT
 Description: ###################
-        pfstate  v2.0.2
+        pfstate  v2.0.4
         ###################
         
         .. image:: https://badge.fury.io/py/pfstate.svg
@@ -78,7 +78,6 @@ Description: ###################
                     An object to hold some generic/global-ish system state, in C_snode
                     trees.
                     """
-                    pudb.set_trace()
                     self.state_create(
                     {
                         'specificState': {
