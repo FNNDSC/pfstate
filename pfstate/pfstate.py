@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.5
 
 import  abc
+import  logging
+logging.disable(logging.CRITICAL)
 
 import  sys
 from    io              import  BytesIO as IO
@@ -26,7 +28,6 @@ import  os
 import  multiprocessing
 import  pfurl
 import  configparser
-import  swiftclient
 
 import  pfmisc
 
@@ -37,8 +38,6 @@ import  pudb
 from    pfmisc._colors      import  Colors
 from    pfmisc.debug        import  debug
 from    pfmisc.C_snode      import *
-
-
 
 def static_vars(**kwargs):
     def decorate(func):
