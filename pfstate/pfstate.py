@@ -69,6 +69,15 @@ class S:
     T       = C_stree()
     b_init  = False
 
+    def __call__(self, *args):
+        """
+        set/get components of the state object
+        """
+        if len(args) == 1:
+            return S.T.cat(args[0])
+        else:
+            S.T.touch(args[0], args[1])
+
     def state_create(self, d_state, *args, **kwargs):
         """
         Create the internal object with specific state
@@ -77,15 +86,19 @@ class S:
 
         for k,v in kwargs.items():
             if k == 'reinitialize': S.b_init    = v
-
+        pudb.set_trace()
         S.__init__(self, *args, **kwargs)
         if not S.b_init:
             S.d_state.update(d_state)
             S.T.initFromDict(S.d_state)
             S.b_init    = True
-            if len(S.T.cat('/this/debugToDir')):
-                if not os.path.exists(S.T.cat('/this/debugToDir')):
-                    os.makedirs(S.T.cat('/this/debugToDir'))
+            if len(self('/this/debugToDir')):
+                if not os.path.exists(self('/this/debugToDir')):
+                    os.makedirs(self('/this/debugToDir'))
+            self.dp     = pfmisc.debug(
+                            verbosity   = self('/this/verbosity'),
+                            within      = self('/this/within')
+            )
 
         self.dp.qprint(
             Colors.YELLOW + "\n\t\tInternal data tree:",
@@ -145,9 +158,11 @@ class S:
         will not change object state values.
         """
 
-        d_args                  = {}
-        str_desc                = ''
-        str_version             = ''
+        d_args          : dict  = {}
+        str_desc        : str   = ''
+        str_version     : str   = ''
+        verbosity       : int   = 0
+        str_within      : str   = ''
 
         # pudb.set_trace()
 
@@ -160,12 +175,14 @@ class S:
         if not S.b_init:
             self.state_init(d_args, str_name, str_desc, str_version)
 
-        if not S.T.cat('/this/verbosity'):  verbosity   = 0
-        if not S.T.cat('/this/name'):       within      = 'pfstate'
-        self.dp                 = pfmisc.debug(
-                                    verbosity   = verbosity,
-                                    within      = within
-                                  )
+        if not self('/this/verbosity'):  verbosity   = 0
+        else: verbosity     = self('/this/verbosity')
+        if not self('/this/name'):       str_within  = 'pfstate'
+        else: str_within    = self('/this/name')
+        self.dp             = pfmisc.debug(
+                                verbosity   = verbosity,
+                                within      = str_within
+        )
 
     def leaf_process(self, **kwargs):
         """
