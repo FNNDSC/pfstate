@@ -86,7 +86,6 @@ class S:
 
         for k,v in kwargs.items():
             if k == 'reinitialize': S.b_init    = v
-        pudb.set_trace()
         S.__init__(self, *args, **kwargs)
         if not S.b_init:
             S.d_state.update(d_state)
