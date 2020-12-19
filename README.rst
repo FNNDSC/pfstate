@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.0.6
+pfstate  v2.1.0
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -93,9 +93,9 @@ Note, it is vitally important that this derived class check the initialization o
             *args, **kwargs)
 
     state      = D(
-        version     = "str_version",
-        name        = "str_name",
-        desc        = "str_desc",
+        version     = str_version,
+        name        = str_name,
+        desc        = str_desc,
         args        = vars(args)
     )
 
