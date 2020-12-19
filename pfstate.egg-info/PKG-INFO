@@ -1,13 +1,13 @@
 Metadata-Version: 1.0
 Name: pfstate
-Version: 2.0.0
+Version: 2.0.2
 Summary: class-defintion stateful module
 Home-page: https://github.com/FNNDSC/pfstate
 Author: Rudolph Pienaar
 Author-email: rudolph.pienaar@gmail.com
 License: MIT
 Description: ###################
-        pfstate  v2.0.0
+        pfstate  v2.0.2
         ###################
         
         .. image:: https://badge.fury.io/py/pfstate.svg
