@@ -1,13 +1,13 @@
 Metadata-Version: 1.0
 Name: pfstate
-Version: 2.0.4
+Version: 2.0.6
 Summary: class-defintion stateful module
 Home-page: https://github.com/FNNDSC/pfstate
 Author: Rudolph Pienaar
 Author-email: rudolph.pienaar@gmail.com
 License: MIT
 Description: ###################
-        pfstate  v2.0.4
+        pfstate  v2.0.6
         ###################
         
         .. image:: https://badge.fury.io/py/pfstate.svg
@@ -90,7 +90,7 @@ Description: ###################
                             'current':      'Destroyed',
                             'reason':       'Hyper space bypass',
                             'survivors': {
-                                'humans':   ['Arthur Dent', 'Ford Prefect''Trillian'],
+                                'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
                                 'dolphins': 'Most of them'
                             }
                         },
