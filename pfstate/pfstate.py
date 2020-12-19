@@ -95,7 +95,8 @@ class S:
                     os.makedirs(self('/this/debugToDir'))
             self.dp     = pfmisc.debug(
                             verbosity   = self('/this/verbosity'),
-                            within      = self('/this/within')
+                            within      = self('/this/name'),
+                            colorize    = self('/this/colorize')
             )
 
         self.dp.qprint(
@@ -140,6 +141,7 @@ class S:
                     'name':                 str_name,
                     'version':              str_version,
                     'desc':                 str_desc,
+                    'colorize':             False,
                     'verbosity':            int(d_args['verbosity']),
                     'debugToDir':           d_args['str_debugToDir'],
                     'configFileLoad':       d_args['str_configFileLoad'],
@@ -161,6 +163,7 @@ class S:
         str_version     : str   = ''
         verbosity       : int   = 0
         str_within      : str   = ''
+        b_colorize      : bool  = False
 
         # pudb.set_trace()
 
@@ -177,9 +180,12 @@ class S:
         else: verbosity     = self('/this/verbosity')
         if not self('/this/name'):       str_within  = 'pfstate'
         else: str_within    = self('/this/name')
+        if not self('/this/colorize'):   b_colorize  = False
+        else: b_colorize    = self('/this/colorize')
         self.dp             = pfmisc.debug(
                                 verbosity   = verbosity,
-                                within      = str_within
+                                within      = str_within,
+                                colorize    = b_colorize
         )
 
     def leaf_process(self, **kwargs):
