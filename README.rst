@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.0.2
+pfstate  v2.0.4
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -70,7 +70,6 @@ Note, it is vitally important that this derived class check the initialization o
             An object to hold some generic/global-ish system state, in C_snode
             trees.
             """
-            pudb.set_trace()
             self.state_create(
             {
                 'specificState': {
