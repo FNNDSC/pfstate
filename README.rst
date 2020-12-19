@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.0.4
+pfstate  v2.0.6
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -82,7 +82,7 @@ Note, it is vitally important that this derived class check the initialization o
                     'current':      'Destroyed',
                     'reason':       'Hyper space bypass',
                     'survivors': {
-                        'humans':   ['Arthur Dent', 'Ford Prefect''Trillian'],
+                        'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
                         'dolphins': 'Most of them'
                     }
                 },
