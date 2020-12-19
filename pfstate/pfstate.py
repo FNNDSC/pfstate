@@ -49,15 +49,13 @@ def static_vars(**kwargs):
 
 class S:
     """
-    A somewhat cryptically named class that keeps system state.
-
-    Calls to the HTTPServer re-initialize the StoreHandler class -- this
+    A somewhat cryptically named class that keeps system state between
+    separate modules/classes. This class was designed to keep object
+    state even if instances of this object class are re-constructed --
+    this typically occurs with certain modules such as the HTTPserver.
+    Each call to the module re-initializes the StoreHandler class, which
     effectively means any per-instance state information is lost across
     calls.
-
-    Barring the use of a module-wide global variable, this class keeps
-    state information as a class (not instance)-variable -- which
-    effectively is analogous to a namespaced global variable.
 
     State-related class variables can thus be accessed by calling the
     class directly, 'S'. For example, to change values in the state
@@ -76,6 +74,10 @@ class S:
         Create the internal object with specific state
         dictionary information.
         """
+
+        for k,v in kwargs.items():
+            if k == 'reinitialize': S.b_init    = v
+
         S.__init__(self, *args, **kwargs)
         if not S.b_init:
             S.d_state.update(d_state)
@@ -134,13 +136,13 @@ class S:
                     'args':                 d_args
                 }
             }
+            S.T.initFromDict(S.d_state)
 
     def __init__(self, *args, **kwargs):
         """
-        The logic of this constructor reflects a bit from legacy design
-        patterns of `pfcon` -- specifically the passing of flags in a
-        single structure, and the <self.state> dictionary to try and
-        organize the space of <self> variables a bit logically.
+        Constructor. If the object has already been initialized by a subclass
+        with a call to state_create(), then repeated calls of this constructor
+        will not change object state values.
         """
 
         d_args                  = {}
@@ -158,11 +160,12 @@ class S:
         if not S.b_init:
             self.state_init(d_args, str_name, str_desc, str_version)
 
+        if not S.T.cat('/this/verbosity'):  verbosity   = 0
+        if not S.T.cat('/this/name'):       within      = 'pfstate'
         self.dp                 = pfmisc.debug(
-                                    verbosity   = S.T.cat('/this/verbosity'),
-                                    within      = S.T.cat('/this/name')
+                                    verbosity   = verbosity,
+                                    within      = within
                                   )
-        self.pp                 = pprint.PrettyPrinter(indent=4)
 
     def leaf_process(self, **kwargs):
         """
