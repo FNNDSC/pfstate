@@ -1,5 +1,5 @@
 ###################
-pfstate  v1.2.0
+pfstate  v1.4.0
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -26,7 +26,7 @@ Most simply, ``pfstate`` is a module that keeps state in a class definition (as 
 
 Moreover, each call to the ``ThreadedHTTPServer`` re-initializes the handler object derived from ``BaseHTTPRequestHandler``, so any state information in that object instance is lost across calls.
 
-By using the ``pfstate`` module, however, in the handler object, state information can be preserved across calls to the ``ThreadedHTTPServer`` by keeping state in the object and not an instance of the object. 
+By using the ``pfstate`` module, however, in the handler object, state information can be preserved across calls to the ``ThreadedHTTPServer`` by keeping state in the object and not an instance of the object.
 
 In some ways, this can be thought of a cleaner way to avoid using a global variable.
 
@@ -36,17 +36,16 @@ Note, it is vitally important that this derived class check the initialization o
 
 .. code-block:: python
 
-    from    pfmisc.C_snode      import C_snode
-    from    pfmisc._colors      import Colors
     from    pfstate             import S
     from    argparse            import RawTextHelpFormatter
     from    argparse            import ArgumentParser
 
     str_desc        = "some program description"
-    str_version     = "1.0.0.0"
+    str_version     = "1.0.0"
+    str_name        = "Example module"
 
     parser          = ArgumentParser(
-                        description = str_desc, 
+                        description = str_desc,
                         formatter_class = RawTextHelpFormatter
                     )
 
@@ -58,53 +57,43 @@ Note, it is vitally important that this derived class check the initialization o
         help    = 'Message payload for internalctl control.'
     )
 
+
     class D(S):
         """
-        A derived class with problem-specific state
+        A derived 'pfstate' class that keeps system state.
+
+        See https://github.com/FNNDSC/pfstate for more information.
         """
 
         def __init__(self, *args, **kwargs):
             """
-            Constructor
+            An object to hold some generic/global-ish system state, in C_snode
+            trees.
             """
-            S.__init__(self, *args, **kwargs)
-            if not S.b_init:
-                d_specific  = \
-                    {
-                        'specificState': {
-                            'desc':         'Additional state information',
-                            'theAnswer':    42,
-                            'theQuestion':  'What do you get if you multiple six by nine',
-                            'foundBy':      'Arthur Dent'
-                        },
-                        'earthState': {
-                            'current':      'Destroyed',
-                            'reason':       'Hyper space bypass',
-                            'survivors': {
-                                'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
-                                'dolphins': 'Most of them'
-                            }
-                        }
+            pudb.set_trace()
+            self.state_create(
+            {
+                'specificState': {
+                    'desc':         'Additional state information',
+                    'theAnswer':    42,
+                    'theQuestion':  'What do you get if you multiple siby nine',
+                    'foundBy':      'Arthur Dent'
+                },
+                'earthState': {
+                    'current':      'Destroyed',
+                    'reason':       'Hyper space bypass',
+                    'survivors': {
+                        'humans':   ['Arthur Dent', 'Ford Prefect''Trillian'],
+                        'dolphins': 'Most of them'
                     }
-                S.d_state.update(d_specific)
-                S.T.initFromDict(S.d_state)
-                S.b_init    = True
-                if len(S.T.cat('/this/debugToDir')):
-                    if not os.path.exists(S.T.cat('/this/debugToDir')):
-                        os.makedirs(S.T.cat('/this/debugToDir'))
+                }
+            },
+            *args, **kwargs)
 
-            self.dp.qprint(
-                Colors.YELLOW + "\n\t\tInternal data tree:", 
-                level   = 1,
-                syslog  = False)
-            self.dp.qprint(
-                C_snode.str_blockIndent(str(S.T), 3, 8), 
-                level   = 1,
-                syslog  = False)
-
-    state   = D( 
-        version     = str_version,
-        desc        = str_desc,
+    state      = D(
+        version     = "str_version",
+        name        = "str_name",
+        desc        = "str_desc",
         args        = vars(args)
     )
 
@@ -173,7 +162,7 @@ To deactivate virtual env:
 Install the module
 
 .. code-block:: bash
- 
+
     pip install pfstate
 
 
@@ -197,9 +186,9 @@ Command line arguments
         [--msg '<JSON_formatted>']
         An optional JSON formatted string exemplifying how to get and
         set internal variables.
-        
+
         --msg '
-        {  
+        {
             "action": "internalctl",
             "meta": {
                         "var":     "/",
@@ -232,7 +221,7 @@ Command line arguments
         [--configFileSave <file>]
         Save configuration information to the JSON formatted <file>.
 
-        [-x|--desc]                                     
+        [-x|--desc]
         Provide an overview help page.
 
         [-y|--synopsis]
@@ -258,7 +247,7 @@ EXAMPLES
 .. code-block:: bash
 
     pfstate                                                \\
-        --msg ' 
+        --msg '
             {  "action": "internalctl",
                 "meta": {
                             "var":     "/",
