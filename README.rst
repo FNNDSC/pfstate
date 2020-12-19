@@ -1,5 +1,5 @@
 ###################
-pfstate  v1.4.0
+pfstate  v2.0.0
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -86,6 +86,9 @@ Note, it is vitally important that this derived class check the initialization o
                         'humans':   ['Arthur Dent', 'Ford Prefect''Trillian'],
                         'dolphins': 'Most of them'
                     }
+                },
+                'this': {
+                    'verbosity':    0
                 }
             },
             *args, **kwargs)
