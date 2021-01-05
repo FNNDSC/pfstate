@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.2.0
+pfstate  v2.2.2
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -75,7 +75,7 @@ Note, it is vitally important that this derived class check the initialization o
                 'specificState': {
                     'desc':         'Additional state information',
                     'theAnswer':    42,
-                    'theQuestion':  'What do you get if you multiple siby nine',
+                    'theQuestion':  'What do you get if you multiple six by nine',
                     'foundBy':      'Arthur Dent'
                 },
                 'earthState': {
