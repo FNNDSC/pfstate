@@ -18,23 +18,18 @@ import  shutil
 import  datetime
 import  time
 import  inspect
-import  pprint
 
 import  threading
 import  platform
 import  socket
 import  psutil
 import  os
-import  multiprocessing
-import  pfurl
-import  configparser
-
-import  pfmisc
 
 # debugging utilities
 import  pudb
 
 # pfstorage local dependencies
+import  pfmisc
 from    pfmisc._colors      import  Colors
 from    pfmisc.debug        import  debug
 from    pfmisc.C_snode      import *
