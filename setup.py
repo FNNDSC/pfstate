@@ -15,14 +15,14 @@ def readme():
 
 setup(
       name             =   'pfstate',
-      version          =   '2.1.2',
+      version          =   '2.2.0',
       description      =   'class-defintion stateful module',
       long_description =   readme(),
       author           =   'Rudolph Pienaar',
       author_email     =   'rudolph.pienaar@gmail.com',
       url              =   'https://github.com/FNNDSC/pfstate',
       packages         =   ['pfstate'],
-      install_requires =   ['pudb', 'psutil', 'pfurl', 'pfmisc'],
+      install_requires =   ['pudb', 'psutil', 'pfmisc'],
       test_suite       =   'nose.collector',
       tests_require    =   ['nose'],
       scripts          =   ['bin/pfstate'],
