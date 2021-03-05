@@ -79,7 +79,14 @@ class S:
         Return a representation of the internal state, esentially
         the dictionary called on the tree root node.
         """
-        return self.T.__iter__()
+        d_tree  = {}
+        try:
+            d_tree.update(next(self.T.__iter__()))
+        except:
+            pass
+        return json.dumps({
+            "tree"  : d_tree
+        })
 
     def __call__(self, *args):
         """
