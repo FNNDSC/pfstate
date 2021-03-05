@@ -63,6 +63,17 @@ class S:
     T       = C_stree()
     b_init  = False
 
+    @classmethod
+    def __get_validators__(cls):
+        # one or more validators may be yielded which will be called in the
+        # order to validate the input, each validator will receive as an input
+        # the value returned from the previous validator
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        return cls
+
     def __call__(self, *args):
         """
         set/get components of the state object
@@ -156,6 +167,7 @@ class S:
         d_args          : dict  = {}
         str_desc        : str   = ''
         str_version     : str   = ''
+        str_name        : str   = ''
         verbosity       : int   = 0
         str_within      : str   = ''
         b_colorize      : bool  = False
