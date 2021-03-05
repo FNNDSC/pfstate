@@ -74,6 +74,13 @@ class S:
     def validate(cls, v):
         return cls
 
+    def __repr__(self):
+        """
+        Return a representation of the internal state, esentially
+        the dictionary called on the tree root node.
+        """
+        return self.T.__iter__()
+
     def __call__(self, *args):
         """
         set/get components of the state object
