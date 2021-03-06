@@ -15,7 +15,7 @@ def readme():
 
 setup(
       name             =   'pfstate',
-      version          =   '2.2.8',
+      version          =   '2.2.10',
       description      =   'class-defintion stateful module',
       long_description =   readme(),
       author           =   'Rudolph Pienaar',
