@@ -74,7 +74,7 @@ class S:
     def validate(cls, v):
         return cls
 
-    def __repr__(self):
+    def as_dict(self):
         """
         Return a representation of the internal state, esentially
         the dictionary called on the tree root node.
@@ -84,9 +84,16 @@ class S:
             d_tree.update(next(self.T.__iter__()))
         except:
             pass
-        return json.dumps({
+        return {
             "tree"  : d_tree
-        })
+        }
+
+    def __repr__(self):
+        """
+        Return a representation of the internal state, esentially
+        the dictionary called on the tree root node.
+        """
+        return json.dumps(self.as_dict())
 
     def __call__(self, *args):
         """
