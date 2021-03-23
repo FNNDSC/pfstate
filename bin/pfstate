@@ -24,7 +24,7 @@ str_defIP   = [l for l in (
                 for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
 
 str_name    = "pfstate"
-str_version = "2.2.10"
+str_version = "2.2.12"
 str_desc    = Colors.CYAN + """
 
         __     _         _
@@ -91,9 +91,9 @@ def synopsis(ab_shortOnly = False):
 
     BRIEF EXAMPLE
 
-            pfstate                                                 \\
-                --verbosity 1
+        $>pfstate --test '/earthState'      # return a dictionary
 
+        $>pfstate --test 'tree'             # return the raw internal data
 
     '''
 
@@ -109,6 +109,12 @@ def synopsis(ab_shortOnly = False):
     program/system.
 
     ARGS
+
+        [--test <directive>]
+        If specified, return some test states. Usually this is some
+        path into an internal test state tree. If the <directive> is
+        the actual text 'tree', then return the test object representation
+        of itself.
 
         [--msg '<JSON_formatted>']
         An optional JSON formatted string exemplifying how to get and
@@ -165,9 +171,9 @@ def synopsis(ab_shortOnly = False):
         needed.
 
         [-v|--verbosity <level>]
-        Set the verbosity level. "0" typically means no/minimal output. Allows for
-        more fine tuned output control as opposed to '--quiet' that effectively
-        silences everything.
+        Set the verbosity level. "0" typically means no/minimal output. Allows
+        for more fine tuned output control as opposed to '--quiet' that
+        effectively silences everything.
 
     EXAMPLES
 
@@ -203,10 +209,9 @@ parser.add_argument(
 )
 parser.add_argument(
     '--test',
-    help    = 'if specified, perform internal tests',
-    dest    = 'b_test',
-    action  = 'store_true',
-    default = False
+    help    = 'if specified, perform some operations on a test state',
+    dest    = 'test',
+    default = ''
 )
 parser.add_argument(
     '--configFileLoad',
@@ -264,10 +269,7 @@ if args.b_version:
     print("Version: %s" % str_version)
     sys.exit(1)
 
-# pudb.set_trace()
-
-# Create a derived class with additional problem-specific state
-
+# Create a test class
 class D(S):
     """
     A derived class with problem-specific state
@@ -277,36 +279,33 @@ class D(S):
         """
         Constructor
         """
-        if not S.b_init:
-            S.__init__(self, *args, **kwargs)
-            d_specific  = \
-                {
-                    'specificState': {
-                        'desc':         'Additional state information',
-                        'theAnswer':    42,
-                        'theQuestion':  'What do you get if you multiple six by nine',
-                        'foundBy':      'Arthur Dent'
-                    },
-                    'earthState': {
-                        'current':      'Destroyed',
-                        'reason':       'Hyper space bypass',
-                        'survivors': {
-                            'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
-                            'dolphins': 'Most of them'
-                        }
+        self.state_create(
+        {
+            'additionalState': {
+                'desc':         'Additional state information',
+                'theAnswer':    42,
+                'theQuestion':  'What do you get if you multiple six by nine',
+                'foundBy':      'Arthur Dent',
+                'note':     {
+                    'additional':   'was this really Arthur Dent, though?',
+                    'action':   {
+                        'item1':    'further research might be needed'
                     }
                 }
-            S.d_state.update(d_specific)
-            S.T.initFromDict(S.d_state)
-            S.b_init    = True
-        self.dp.qprint(
-            Colors.YELLOW + "\n\t\tInternal data tree:",
-            level   = 1,
-            syslog  = False)
-        self.dp.qprint(
-            C_snode.str_blockIndent(str(S.T), 3, 8),
-            level   = 1,
-            syslog  = False)
+            },
+            'earthState': {
+                'current':      'Destroyed',
+                'reason':       'Hyper space bypass',
+                'survivors': {
+                    'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
+                    'dolphins': 'Most of them',
+                    'note': {
+                        'exception':    'Ford Prefect is not a human'
+                    }
+                }
+            }
+        },
+        *args, **kwargs)
 
 state   = D(
     version     = str_version,
@@ -314,6 +313,12 @@ state   = D(
     desc        = str_desc,
     args        = vars(args)
 )
+
+if len(args.test):
+    if args.test == 'tree': 
+        print(state.T)
+    else:
+        print(json.dumps(state.as_dict(node = args.test)))
 
 if len(args.msg):
     d_control = state.internalctl_process(request = json.loads(args.msg))

@@ -74,18 +74,25 @@ class S:
     def validate(cls, v):
         return cls
 
-    def as_dict(self):
+    def as_dict(self, **kwargs) -> dict:
         """
-        Return a representation of the internal state, esentially
+        Return a representation of the internal state, essentially
         the dictionary called on the tree root node.
         """
-        d_tree  = {}
+        d_tree      : dict      = {}
+        str_dir     : str       = "/"
+        b_status    :   bool    = False
+        for k,v in kwargs.items():
+            if k == 'node':     str_dir     = v
         try:
-            d_tree.update(next(self.T.__iter__()))
+            d_tree.update(next(self.T.__iter__(node = str_dir)))
+            b_status    = True
         except:
             pass
         return {
-            "tree"  : d_tree
+            "asdict"    : d_tree,
+            "status"    : True
+
         }
 
     def __repr__(self):
@@ -125,15 +132,6 @@ class S:
                             within      = self('/this/name'),
                             colorize    = self('/this/colorize')
             )
-
-        self.dp.qprint(
-            Colors.YELLOW + "\n\t\tInternal data tree:",
-            level   = 1,
-            syslog  = False)
-        self.dp.qprint(
-            C_snode.str_blockIndent(str(S.T), 3, 8),
-            level   = 1,
-            syslog  = False)
 
     def state_init( self, d_args,
                     str_name    = "",

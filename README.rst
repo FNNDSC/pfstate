@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.2.10
+pfstate  v2.2.12
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -70,27 +70,33 @@ Note, it is vitally important that this derived class check the initialization o
             An object to hold some generic/global-ish system state, in C_snode
             trees.
             """
-            self.state_create(
-            {
-                'specificState': {
-                    'desc':         'Additional state information',
-                    'theAnswer':    42,
-                    'theQuestion':  'What do you get if you multiple six by nine',
-                    'foundBy':      'Arthur Dent'
-                },
-                'earthState': {
-                    'current':      'Destroyed',
-                    'reason':       'Hyper space bypass',
-                    'survivors': {
-                        'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
-                        'dolphins': 'Most of them'
+        self.state_create(
+        {
+            'additionalState': {
+                'desc':         'Additional state information',
+                'theAnswer':    42,
+                'theQuestion':  'What do you get if you multiple six by nine',
+                'foundBy':      'Arthur Dent',
+                'note':     {
+                    'additional':   'was this really Arthur Dent, though?',
+                    'action':   {
+                        'item1':    'further research might be needed'
                     }
-                },
-                'this': {
-                    'verbosity':    0
                 }
             },
-            *args, **kwargs)
+            'earthState': {
+                'current':      'Destroyed',
+                'reason':       'Hyper space bypass',
+                'survivors': {
+                    'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
+                    'dolphins': 'Most of them',
+                    'note': {
+                        'exception':    'Ford Prefect is not a human'
+                    }
+                }
+            }
+        },
+        *args, **kwargs)
 
     state      = D(
         version     = str_version,
@@ -121,57 +127,13 @@ On Ubuntu, install the Python virtual environment creator
 
 .. code-block:: bash
 
-  sudo apt install virtualenv
-
-Then, create a directory for your virtual environments e.g.:
-
-.. code-block:: bash
-
-  mkdir ~/python-envs
-
-You might want to add to your .bashrc file these two lines:
-
-.. code-block:: bash
-
-    export WORKON_HOME=~/python-envs
-    source /usr/local/bin/virtualenvwrapper.sh
-
-Note that depending on distro, the virtualenvwrapper.sh path might be
-
-.. code-block:: bash
-
-    /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-
-Subsequently, you can source your ``.bashrc`` and create a new Python3 virtual environment:
-
-.. code-block:: bash
-
-    source .bashrc
-    mkvirtualenv --python=python3 python_env
-
-To activate or "enter" the virtual env:
-
-.. code-block:: bash
-
-    workon python_env
-
-To deactivate virtual env:
-
-.. code-block:: bash
-
-    deactivate
+  python3 -m venv <virtualEnvPath>
 
 Install the module
 
 .. code-block:: bash
 
     pip install pfstate
-
-
-Using the ``fnndsc/pfstorage`` docker container
-================================================
-
-For completeness sake with other pf* packages, a dockerized build is provided, although its utility is debatable and running / building the docker image will serve little purpose.
 
 *****
 Usage
@@ -184,6 +146,12 @@ Command line arguments
 ======================
 
 .. code-block:: html
+
+        [--test <directive>]
+        If specified, return some test states. Usually this is some
+        path into an internal test state tree. If the <directive> is
+        the actual text 'tree', then return the test object representation
+        of itself.
 
         [--msg '<JSON_formatted>']
         An optional JSON formatted string exemplifying how to get and
@@ -240,15 +208,19 @@ Command line arguments
         needed.
 
         [-v|--verbosity <level>]
-        Set the verbosity level. "0" typically means no/minimal output. Allows for
-        more fine tuned output control as opposed to '--quiet' that effectively
-        silences everything.
+        Set the verbosity level. "0" typically means no/minimal output. Allows
+        for more fine tuned output control as opposed to '--quiet' that effectively silences everything.
 
 EXAMPLES
 
 .. code-block:: bash
 
-    pfstate                                                \\
+    $>pfstate --test '/earthState'      # return a dictionary representation of
+                                        # this node in the internal test data
+
+    $>pfstate --test 'tree'             # return the raw internal test data
+
+    $>pfstate  \\
         --msg '
             {  "action": "internalctl",
                 "meta": {
