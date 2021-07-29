@@ -1,9 +1,8 @@
 from unittest import TestCase
 
-from pfurl import pfurl
+from pfstate import pfstate
 
-class TestPfurl(TestCase):
+class TestPstate(TestCase):
     def test_pfurl_constructor(self):
-        #myMan = pfurl()
         # didn't crash
         self.assertTrue(True)
