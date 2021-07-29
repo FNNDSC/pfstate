@@ -1,5 +1,5 @@
 ###################
-pfstate  v2.2.12
+pfstate  v3.0.0
 ###################
 
 .. image:: https://badge.fury.io/py/pfstate.svg
@@ -22,7 +22,19 @@ This repository provides ``pfstate`` -- a library / module that maintains state 
 pfstate
 =======
 
-Most simply, ``pfstate`` is a module that keeps state in a class definition (as opposed to a class instance). It was primarily created in the context of custom ``ThreadedHTTPServer`` classes. Creating a ``ThreadedHTTPServer`` in python involves instantiating the ``ThreadedHTTPServer``, and in the constructor providing a derived ``BaseHTTPRequestHandler`` object. The design pattern has some structural shortcomings -- most notably that the difficulty in setting internal ``BaseHTTPRequestHandler`` data from the level of the ``ThreadedHTTPServer``. One mechanism to overcome this is to share a common single ``pfstate`` object across the scope of both the server and the handler.
+Most simply, ``pfstate`` is a module that keeps state in a class definition (as opposed to a class instance).
+
+States are created in the global space typically by deriving a class and calling the state_create() method of the base class. Note that a "derived" class is still only setting state in the same global space -- and not in a separate derived-class space.
+
+THIS IS IMPORTANT:
+
+* There is only ever ONE global state in the context of a single system. Thus, if various different modules use `pfstate` it is probably best practice to *always* set the ``**kwargs`` that are sent to the derived class with
+
+.. code-block:: python
+
+    **dict(kwargs, useGlobalState = True)
+
+It was primarily created in the context of custom ``ThreadedHTTPServer`` classes. Creating a ``ThreadedHTTPServer`` in python involves instantiating the ``ThreadedHTTPServer``, and in the constructor providing a derived ``BaseHTTPRequestHandler`` object. The design pattern has some structural shortcomings -- most notably that the difficulty in setting internal ``BaseHTTPRequestHandler`` data from the level of the ``ThreadedHTTPServer``. One mechanism to overcome this is to share a common single ``pfstate`` object across the scope of both the server and the handler.
 
 Moreover, each call to the ``ThreadedHTTPServer`` re-initializes the handler object derived from ``BaseHTTPRequestHandler``, so any state information in that object instance is lost across calls.
 
@@ -57,53 +69,107 @@ Note, it is vitally important that this derived class check the initialization o
         help    = 'Message payload for internalctl control.'
     )
 
-
+    # Create a test class
     class D(S):
         """
-        A derived 'pfstate' class that keeps system state.
+        A derived class with problem-specific state
 
         See https://github.com/FNNDSC/pfstate for more information.
+
         """
 
         def __init__(self, *args, **kwargs):
             """
-            An object to hold some generic/global-ish system state, in C_snode
-            trees.
+            Constructor
             """
-        self.state_create(
-        {
-            'additionalState': {
-                'desc':         'Additional state information',
-                'theAnswer':    42,
-                'theQuestion':  'What do you get if you multiple six by nine',
-                'foundBy':      'Arthur Dent',
-                'note':     {
-                    'additional':   'was this really Arthur Dent, though?',
-                    'action':   {
-                        'item1':    'further research might be needed'
+            self.state_create(
+            {
+                'additionalState': {
+                    'desc':         'Additional state information',
+                    'theAnswer':    42,
+                    'theQuestion':  'What do you get if you multiple six by nine',
+                    'foundBy':      'Arthur Dent',
+                    'note':     {
+                        'additional':   'was this really Arthur Dent, though?',
+                        'action':   {
+                            'item1':    'further research might be needed'
+                        }
+                    }
+                },
+                'earthState': {
+                    'current':      'Destroyed',
+                    'reason':       'Facilitate Hyperspace bypass',
+                    'survivors': {
+                        'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
+                        'dolphins': 'Most of them',
+                        'note': {
+                            'exception':    'Ford Prefect is not a human'
+                        }
                     }
                 }
             },
-            'earthState': {
-                'current':      'Destroyed',
-                'reason':       'Hyper space bypass',
-                'survivors': {
-                    'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
-                    'dolphins': 'Most of them',
-                    'note': {
-                        'exception':    'Ford Prefect is not a human'
-                    }
-                }
-            }
-        },
-        *args, **kwargs)
+            *args, **kwargs)
 
-    state      = D(
+    state   = D(
         version     = str_version,
         name        = str_name,
         desc        = str_desc,
         args        = vars(args)
     )
+
+    # Now create a different derived class --
+    # This will still add to the global state
+    class E(S):
+        """
+        A new derived class with different state -- this is still
+        added to the same global space
+        """
+
+        def __init__(self, arg, *args, **kwargs):
+            """
+            Constructor
+            """
+            if 'randomFact' not in arg.keys():
+                arg['randomFact']   = "Vogon poetry is the third worst poetry in the universe."
+            self.state_create(
+            {
+                'Vogons': {
+                    'desc'          :   'Slug-like but vaguely humanoid',
+                    'preferredJob'  :   'Galactic bureaucrats',
+                    'randomFact'    :   arg['randomFact'],
+                    'note':     {
+                        'additional':   'Vogons are the worst marksmen in the galaxy.',
+                        'source':   {
+                            'name':    'Marvin the Paranoid Android'
+                        }
+                    }
+                }
+            },
+            *args, **kwargs)
+
+    class demo:
+        """Just an example class that as part of its initialization adds to state
+        """
+        def __init__(self, arg, *args, **kwargs):
+            """example class constructor
+
+            Args:
+                arg ([type]): some unspecified type arg input
+            """
+            self.newState       = E(arg, *args, **dict(kwargs, useGlobalState = True))
+            print(self.newState('/this/desc'))
+
+    example = demo(
+                {
+                    'randomFact' : "Vogon poetry is the third worst poetry in the universe"
+                }, name = "example"
+            )
+
+    if len(args.test):
+        if args.test == 'tree':
+            print(state.T)
+        else:
+            print(json.dumps(state.as_dict(node = args.test)))
 
     if len(args.msg):
         d_control = state.internalctl_process(request = json.loads(args.msg))
@@ -114,11 +180,12 @@ Note, it is vitally important that this derived class check the initialization o
             )
         )
 
+
 ************
 Installation
 ************
 
-Installation is relatively straightforward, and we recommend using python ```pip`` to simplu install the module, preferably in a python virtual environment.
+Installation is relatively straightforward, and we recommend using python ```pip`` to simply install the module, preferably in a python virtual environment.
 
 Python Virtual Environment
 ==========================
@@ -147,11 +214,11 @@ Command line arguments
 
 .. code-block:: html
 
-        [--test <directive>]
-        If specified, return some test states. Usually this is some
-        path into an internal test state tree. If the <directive> is
-        the actual text 'tree', then return the test object representation
-        of itself.
+        [--state <directive>]
+        If specified, return some state detail. Usually this is some
+        path into an internal state tree node. If the <directive> is
+        the actual text 'tree', then return the entre state object
+        representation
 
         [--msg '<JSON_formatted>']
         An optional JSON formatted string exemplifying how to get and
@@ -215,17 +282,28 @@ EXAMPLES
 
 .. code-block:: bash
 
-    $>pfstate --test '/earthState'      # return a dictionary representation of
+    $>pfstate --state '/earthState'     # return a dictionary representation of
                                         # this node in the internal test data
 
-    $>pfstate --test 'tree'             # return the raw internal test data
+    $>pfstate --state 'tree'            # return the raw internal test data
 
-    $>pfstate  \\
+    $>pfstate  \
         --msg '
             {  "action": "internalctl",
-                "meta": {
-                            "var":     "/",
-                            "get":      "value"
+            "meta": {
+                        "var":     "/service/megalodon",
+                        "set":     {
+                            "compute": {
+                                "addr": "10.20.1.71:5010",
+                                "baseURLpath": "api/v1/cmd/",
+                                "status": "undefined"
+                            },
+                            "data": {
+                                "addr": "10.20.1.71:5055",
+                                "baseURLpath": "api/v1/cmd/",
+                                "status": "undefined"
+                            }
                         }
+                    }
             }'
 
