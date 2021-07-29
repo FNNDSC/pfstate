@@ -30,7 +30,7 @@ THIS IS IMPORTANT:
 
 * There is only ever ONE global state in the context of a single system. Thus, if various different modules use `pfstate` it is probably best practice to *always* set the ``**kwargs`` that are sent to the derived class with
 
-.. code-block:: python
+.. code-block:: console
 
     **dict(kwargs, useGlobalState = True)
 
@@ -192,9 +192,9 @@ Python Virtual Environment
 
 On Ubuntu, install the Python virtual environment creator
 
-.. code-block:: bash
+.. code-block:: console
 
-  python3 -m venv <virtualEnvPath>
+   python3 -m venv <virtualEnvPath>
 
 Install the module
 
