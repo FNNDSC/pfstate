@@ -15,6 +15,7 @@ from    argparse            import RawTextHelpFormatter
 from    argparse            import ArgumentParser
 from    pfmisc._colors      import Colors
 from    pfmisc.C_snode      import C_snode
+from    pfmisc.debug        import debug
 
 
 str_defIP   = [l for l in (
@@ -24,28 +25,43 @@ str_defIP   = [l for l in (
                 for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
 
 str_name    = "pfstate"
-str_version = "2.2.12"
-str_desc    = Colors.CYAN + """
+str_version = "3.0.0"
+str_desc    = Colors.CYAN + r"""
 
         __     _         _
        / _|   | |       | |
  _ __ | |_ ___| |_  __ _| |_  ___
-| '_ \|  _/ __| __|/ _` | __|/ _ \\
+| '_ \|  _/ __| __|/ _` | __|/ _ \
 | |_) | | \__ \ |_| (_| | |_|  __/
 | .__/|_| |___/\__|\__,_|\__|\___|
 | |
 |_|
 
-                            Path-File-state
+                                Path-File-state
 
-           An stateful class -- part of the pf* family.
+                A stateful class -- part of the pf* family.
 
                               -- version """ + \
              Colors.YELLOW + str_version + Colors.CYAN + """ --
 
     ``pfstate`` is a class designed to, at a *class* level, maintain state.
-    Thus, it is a class that has state information at the object/class level
-    and not as member variables.
+    Thus, it is a class that has state information at the class level and
+    not within instantiated objects.
+
+    States are created in the global space typically by deriving from a special
+    internal class and
+    calling the state_create() method of the base class. Note that a "derived"
+    class is still only setting state in the same global space -- and not in
+    a separate derived-class space.
+
+    THIS IS IMPORTANT:
+
+        * There is only ever ONE global state in the context of a single
+          system. Thus, if various different modules use `pfstate` it is
+          probably best practice to *always* set the **kwargs that are sent
+          to the derived class with
+
+                     **dict(kwargs, useGlobalState = True)
 
     The class was designed to overcome some inherent limitations in using the
     python HTTPServer module, namely:
@@ -84,16 +100,17 @@ def synopsis(ab_shortOnly = False):
                 [--verbosity <level>]                               \\
                 [--configFileLoad <file>]                           \\
                 [--configFileSave <file>]                           \\
-                [--test]                                            \\
+                [--debugToDir <dir>]                                \\
+                [--state <internalState>]                           \\
                 [-x|--desc]                                         \\
                 [-y|--synopsis]                                     \\
                 [--msg <JSON_formatted>]
 
     BRIEF EXAMPLE
 
-        $>pfstate --test '/earthState'      # return a dictionary
+        $>pfstate --state '/earthState'      # return a dictionary
 
-        $>pfstate --test 'tree'             # return the raw internal data
+        $>pfstate --state 'tree'             # return the raw internal data
 
     '''
 
@@ -110,11 +127,11 @@ def synopsis(ab_shortOnly = False):
 
     ARGS
 
-        [--test <directive>]
-        If specified, return some test states. Usually this is some
-        path into an internal test state tree. If the <directive> is
-        the actual text 'tree', then return the test object representation
-        of itself.
+        [--state <directive>]
+        If specified, return some state detail.. Usually this is some
+        path into an internal state tree node. If the <directive> is
+        the actual text 'tree', then return the entire state object
+        representation.
 
         [--msg '<JSON_formatted>']
         An optional JSON formatted string exemplifying how to get and
@@ -166,9 +183,7 @@ def synopsis(ab_shortOnly = False):
         [--debugToDir <dir>]
         A directory to contain various debugging output -- these are typically
         JSON object strings capturing internal state. If empty string (default)
-        then no debugging outputs are captured/generated. If specified, then
-        ``pfcon`` will check for dir existence and attempt to create if
-        needed.
+        then no debugging outputs are captured/generated.
 
         [-v|--verbosity <level>]
         Set the verbosity level. "0" typically means no/minimal output. Allows
@@ -208,9 +223,9 @@ parser.add_argument(
     default = False
 )
 parser.add_argument(
-    '--test',
-    help    = 'if specified, perform some operations on a test state',
-    dest    = 'test',
+    '--state',
+    help    = 'if specified, show the reference internal state',
+    dest    = 'state',
     default = ''
 )
 parser.add_argument(
@@ -257,6 +272,7 @@ parser.add_argument(
 args            = parser.parse_args()
 
 if args.desc or args.synopsis:
+    str_help    : str = ""
     print(str_desc)
     if args.desc:
         str_help     = synopsis(False)
@@ -269,10 +285,13 @@ if args.b_version:
     print("Version: %s" % str_version)
     sys.exit(1)
 
-# Create a test class
+# Create a state class
 class D(S):
     """
     A derived class with problem-specific state
+
+    See https://github.com/FNNDSC/pfstate for more information.
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -295,7 +314,7 @@ class D(S):
             },
             'earthState': {
                 'current':      'Destroyed',
-                'reason':       'Hyper space bypass',
+                'reason':       'Facilitate Hyperspace bypass',
                 'survivors': {
                     'humans':   ['Arthur Dent', 'Ford Prefect', 'Trillian'],
                     'dolphins': 'Most of them',
@@ -314,18 +333,73 @@ state   = D(
     args        = vars(args)
 )
 
-if len(args.test):
-    if args.test == 'tree': 
-        print(state.T)
-    else:
-        print(json.dumps(state.as_dict(node = args.test)))
+# Now create a different derived class --
+# This will still add to the global state
+class E(S):
+    """
+    A new derived class with different state -- this is still
+    added to the same global space
+    """
+
+    def __init__(self, arg, *args, **kwargs):
+        """
+        Constructor
+        """
+        if 'randomFact' not in arg.keys():
+            arg['randomFact']   = "Vogon poetry is the third worst poetry in the universe."
+        self.state_create(
+        {
+            'Vogons': {
+                'desc'          :   'Slug-like but vaguely humanoid',
+                'preferredJob'  :   'Galactic bureaucrats',
+                'randomFact'    :   arg['randomFact'],
+                'note':     {
+                    'additional':   'Vogons are the worst marksmen in the galaxy.',
+                    'source':   {
+                        'name':    'Marvin the Paranoid Android'
+                    }
+                }
+            }
+        },
+        *args, **kwargs)
+
+class demo:
+    """Just an example class that as part of its initialization adds to state
+    """
+    def __init__(self, arg, *args, **kwargs):
+        """example class constructor
+
+        Args:
+            arg ([type]): some unspecified type arg input
+        """
+        self.newState       = E(arg, *args, **dict(kwargs, useGlobalState = True))
+
+example = demo(
+            {
+                'randomFact' : "Vogon poetry is the third worst poetry in the universe"
+            }, name = "example"
+        )
+
+debugger                = debug(verbosity = int(args.verbosity))
+log                     = debugger.qprint
 
 if len(args.msg):
     d_control = state.internalctl_process(request = json.loads(args.msg))
-    print(
+    log(
         json.dumps(
             d_control,
             indent = 4
-        )
+        ),
+        level = 2
     )
 
+if len(args.state):
+    if args.state == 'tree':
+        log(state.T)
+    else:
+        log(
+            json.dumps(
+                state.as_dict(node = args.state), indent = 4
+            ),
+            syslog      = False,
+            colorize    = False)
