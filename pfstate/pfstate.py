@@ -32,7 +32,7 @@ import  pudb
 import  pfmisc
 from    pfmisc._colors      import  Colors
 from    pfmisc.debug        import  debug
-from    pfmisc.C_snode      import *
+from    pfmisc.C_snode      import  *
 
 def static_vars(**kwargs):
     def decorate(func):
@@ -115,12 +115,32 @@ class S:
         """
         Create the internal object with specific state
         dictionary information.
-        """
 
+        By default, once the first set of state information
+        is created, the global space is locked. This prevents
+        subsequent calls from accidentally overwriting this state,
+        especially if an initialization routine is called again
+        from a location where it might not have access to
+        the original state information.
+
+        In cases, however, where it is useful to add new state
+        data from other derived classes, the special kwargs
+
+                        useGlobalState = True
+
+        can be specified which will update to the global state
+        space -- such an update can either append new information
+        or potentially overwrite existing.
+
+        The 'reinitialize' kwargs is legacy and preserved.
+
+        """
+        b_useGlobalState                : bool      = True
         for k,v in kwargs.items():
-            if k == 'reinitialize': S.b_init    = v
+            if k == 'reinitialize'      : S.b_init          = v
+            if k == 'useGlobalState'    : b_useGlobalState  = v
         S.__init__(self, *args, **kwargs)
-        if not S.b_init:
+        if not S.b_init or b_useGlobalState:
             S.d_state.update(d_state)
             S.T.initFromDict(S.d_state)
             S.b_init    = True
